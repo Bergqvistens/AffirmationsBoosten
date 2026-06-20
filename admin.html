@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — AffirmationsBoosten</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E6;--sand:#D9CBAA;--green:#5B7A5A;--green3:#3d5440;--gold:#C9954A;--gold3:#A87830;--sand2:#C8B990;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f0ebe0;color:var(--green3);min-height:100vh}
+.admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F5F0E6,#EDE6D6,#D9CBAA);padding:24px}
+.login-card{background:rgba(255,255,255,0.85);border:1px solid rgba(201,149,74,0.2);border-radius:24px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.08)}
+.login-title{font-family:'Dancing Script',cursive;font-size:28px;color:var(--gold3);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--sand2);margin-bottom:24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sand2);font-weight:700;margin-bottom:6px}
+.field input{width:100%;background:rgba(255,255,255,0.9);border:1.5px solid rgba(201,149,74,0.2);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:15px;color:var(--green3);outline:none}
+.field input:focus{border-color:var(--gold)}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:var(--r);color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(168,120,48,0.28)}
+.err{background:rgba(220,50,50,0.08);border:1px solid rgba(220,50,50,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:14px;display:none}
+
+/* ADMIN DASHBOARD */
+#dashboard{display:none}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--green3);padding:28px 16px;z-index:10}
+.sidebar-logo{font-family:'Dancing Script',cursive;font-size:22px;color:var(--gold);margin-bottom:4px}
+.sidebar-sub{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:28px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:rgba(255,255,255,0.6);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:4px;transition:all 0.15s}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.1);color:#fff}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.logout-btn{position:absolute;bottom:24px;left:16px;right:16px;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:rgba(255,255,255,0.5);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;background:transparent;text-align:center}
+.logout-btn:hover{color:#fff;border-color:rgba(255,255,255,0.3)}
+
+.main-content{margin-left:240px;padding:28px 32px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:24px}
+.page-title{font-size:22px;font-weight:700;color:var(--green3)}
+.page-sub{font-size:13px;color:var(--sand2);margin-top:2px}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid rgba(201,149,74,0.15);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.stat-num{font-size:32px;font-weight:800;color:var(--gold3);line-height:1}
+.stat-label{font-size:12px;color:var(--sand2);text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-weight:600}
+
+/* USERS TABLE */
+.table-wrap{background:#fff;border:1px solid rgba(201,149,74,0.12);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.table-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr;padding:12px 20px;background:rgba(201,149,74,0.06);border-bottom:1px solid rgba(201,149,74,0.12);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--sand2);font-weight:700}
+.table-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr;padding:14px 20px;border-bottom:1px solid rgba(201,149,74,0.07);align-items:center;transition:background 0.15s}
+.table-row:last-child{border-bottom:none}
+.table-row:hover{background:rgba(201,149,74,0.03)}
+.cell{font-size:14px;color:var(--green3)}
+.cell.small{font-size:12px;color:var(--sand2)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-paid{background:rgba(91,122,90,0.12);color:var(--green)}
+.badge-trial{background:rgba(201,149,74,0.12);color:var(--gold3)}
+.badge-expired{background:rgba(200,50,50,0.08);color:#c0392b}
+.toggle-paid{padding:5px 12px;border:1.5px solid rgba(201,149,74,0.3);border-radius:8px;background:transparent;font-size:12px;font-weight:600;color:var(--gold3);cursor:pointer;font-family:'Inter',sans-serif}
+.toggle-paid:hover{background:rgba(201,149,74,0.08)}
+
+/* AFFIRMATIONS */
+.aff-controls{display:flex;gap:12px;margin-bottom:16px;align-items:center}
+.search-input{flex:1;background:#fff;border:1.5px solid rgba(201,149,74,0.2);border-radius:10px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--green3);outline:none}
+.btn-add{padding:10px 20px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.aff-item{background:#fff;border:1px solid rgba(201,149,74,0.12);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:box-shadow 0.15s}
+.aff-item:hover{box-shadow:0 3px 12px rgba(0,0,0,0.06)}
+.aff-idx{min-width:32px;height:32px;border-radius:8px;background:rgba(201,149,74,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gold3)}
+.aff-txt{flex:1;font-size:14px;color:var(--green3);line-height:1.5;cursor:pointer;padding:4px 0}
+.aff-txt:focus{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.aff-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-edit,.btn-del{width:30px;height:30px;border-radius:8px;border:1px solid rgba(201,149,74,0.2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s}
+.btn-edit:hover{background:rgba(201,149,74,0.1)}
+.btn-del:hover{background:rgba(220,50,50,0.08)}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.setting-card{background:#fff;border:1px solid rgba(201,149,74,0.12);border-radius:16px;padding:20px;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+.setting-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sand2);font-weight:700;margin-bottom:8px}
+.setting-input{width:100%;background:rgba(245,240,230,0.5);border:1.5px solid rgba(201,149,74,0.2);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:var(--green3);outline:none}
+.setting-input:focus{border-color:var(--gold)}
+.btn-save{margin-top:10px;padding:10px 20px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(61,84,64,0.3);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:500px;box-shadow:0 16px 48px rgba(0,0,0,0.12)}
+.modal-title{font-size:18px;font-weight:700;color:var(--green3);margin-bottom:16px}
+.modal textarea{width:100%;background:rgba(245,240,230,0.4);border:1.5px solid rgba(201,149,74,0.2);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--green3);outline:none;resize:vertical;min-height:90px;line-height:1.6}
+.modal textarea:focus{border-color:var(--gold)}
+.modal-btns{display:flex;gap:10px;margin-top:16px}
+.modal-btns button{flex:1;padding:12px;border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none}
+.modal-confirm{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#fff}
+.modal-cancel{background:rgba(201,149,74,0.08);color:var(--gold3);border:1.5px solid rgba(201,149,74,0.2) !important;border:none}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green3);color:#fff;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,0.15);animation:fadein 0.2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.6);display:none;align-items:center;justify-content:center;z-index:100;font-size:16px;color:var(--gold3);font-weight:600}
+.loading-overlay.show{display:flex}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="admin-login">
+    <div class="login-card">
+      <div class="login-title">AffirmationsBoosten</div>
+      <div class="login-sub">Admin-panel · Endast behörig personal</div>
+      <div class="err" id="login-err"></div>
+      <div class="field"><label>E-post</label><input type="email" id="a-email" placeholder="admin@affirmationsboosten.se"></div>
+      <div class="field"><label>Lösenord</label><input type="password" id="a-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="btn-primary" onclick="adminLogin()">Logga in som admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">Admin</div>
+    <div class="sidebar-sub">AffirmationsBoosten</div>
+    <div class="nav-item active" onclick="showPage('overview')"><span class="nav-icon">📊</span>Översikt</div>
+    <div class="nav-item" onclick="showPage('users')"><span class="nav-icon">👥</span>Användare</div>
+    <div class="nav-item" onclick="showPage('affirmations')"><span class="nav-icon">✨</span>Affirmationer</div>
+    <div class="nav-item" onclick="showPage('app-settings')"><span class="nav-icon">⚙️</span>Inställningar</div>
+    <button class="logout-btn" onclick="adminLogout()">Logga ut</button>
+  </div>
+
+  <div class="main-content">
+    <!-- OVERVIEW -->
+    <div id="page-overview" class="page active">
+      <div class="page-header">
+        <div class="page-title">Översikt</div>
+        <div class="page-sub">Välkommen till din admin-panel</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="ov-total">—</div><div class="stat-label">Totala användare</div></div>
+        <div class="stat-card"><div class="stat-num" id="ov-paid">—</div><div class="stat-label">Betalande</div></div>
+        <div class="stat-card"><div class="stat-num" id="ov-affs">—</div><div class="stat-label">Affirmationer</div></div>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(201,149,74,0.12);border-radius:16px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,0.04)">
+        <div style="font-size:15px;font-weight:700;color:var(--green3);margin-bottom:16px">Senaste användare</div>
+        <div id="recent-users"></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="page-users" class="page">
+      <div class="page-header">
+        <div class="page-title">Användare</div>
+        <div class="page-sub">Hantera konton och prenumerationer</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head"><div>Namn / E-post</div><div>Registrerad</div><div>Status</div><div>Streak</div><div>Lästa</div><div>Åtgärd</div></div>
+        <div id="users-list"></div>
+      </div>
+    </div>
+
+    <!-- AFFIRMATIONS -->
+    <div id="page-affirmations" class="page">
+      <div class="page-header">
+        <div class="page-title">Affirmationer</div>
+        <div class="page-sub">Redigera, lägg till och ta bort affirmationer</div>
+      </div>
+      <div class="aff-controls">
+        <input type="text" class="search-input" placeholder="Sök affirmation…" oninput="filterAffs(this.value)" id="aff-search">
+        <button class="btn-add" onclick="openAddModal()">+ Lägg till</button>
+      </div>
+      <div id="admin-aff-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-app-settings" class="page">
+      <div class="page-header">
+        <div class="page-title">Appinställningar</div>
+        <div class="page-sub">Prova- och prisuppgifter</div>
+      </div>
+      <div class="settings-grid">
+        <div class="setting-card">
+          <div class="setting-label">Provperiod (dagar)</div>
+          <input type="number" class="setting-input" id="set-trial" value="7" min="1" max="90">
+          <button class="btn-save" onclick="saveSetting('trialDays','set-trial')">Spara</button>
+        </div>
+        <div class="setting-card">
+          <div class="setting-label">Pris per månad (SEK)</div>
+          <input type="number" class="setting-input" id="set-price" value="49" min="1">
+          <button class="btn-save" onclick="saveSetting('priceMonthly','set-price')">Spara</button>
+        </div>
+        <div class="setting-card" style="grid-column:1/-1">
+          <div class="setting-label">Admin-lösenord</div>
+          <div style="font-size:13px;color:var(--sand2);line-height:1.6">Ändra lösenordet via miljövariabeln <code style="background:rgba(201,149,74,0.1);padding:2px 6px;border-radius:4px;font-size:12px">ADMIN_PASSWORD</code> i Railway-inställningarna. Starta om servern efter ändringen.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Redigera affirmation</div>
+    <textarea id="modal-text" rows="4"></textarea>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Avbryt</button>
+      <button class="modal-confirm" onclick="confirmModal()">Spara</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loader">Sparar…</div>
+
+<script>
+let ATOKEN = localStorage.getItem('ab_admin_token');
+let allAffs = [];
+let modalMode = null; // 'edit' | 'add'
+let editIdx = null;
+
+const API = '';
+
+async function api(method, url, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (ATOKEN) opts.headers['Authorization'] = 'Bearer ' + ATOKEN;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + url, opts);
+  const data = await r.json();
+  if (!r.ok) throw data;
+  return data;
+}
+
+// ── LOGIN ──
+async function adminLogin() {
+  const email = document.getElementById('a-email').value.trim();
+  const pw = document.getElementById('a-pw').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  try {
+    const r = await api('POST', '/api/login', { email, password: pw });
+    if (!r.isAdmin) { errEl.textContent = 'Inte ett admin-konto'; errEl.style.display = 'block'; return; }
+    ATOKEN = r.token;
+    localStorage.setItem('ab_admin_token', ATOKEN);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadDashboard();
+  } catch(e) {
+    errEl.textContent = e.error || 'Fel e-post eller lösenord';
+    errEl.style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('ab_admin_token');
+  window.location.reload();
+}
+
+// ── AUTO LOGIN ──
+async function tryAutoLogin() {
+  if (!ATOKEN) return;
+  try {
+    const r = await api('GET', '/api/access');
+    if (!r.isAdmin) { ATOKEN = null; localStorage.removeItem('ab_admin_token'); return; }
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadDashboard();
+  } catch(e) {
+    ATOKEN = null; localStorage.removeItem('ab_admin_token');
+  }
+}
+
+// ── LOAD DASHBOARD ──
+async function loadDashboard() {
+  const [users, affs, settings] = await Promise.all([
+    api('GET', '/api/admin/users'),
+    api('GET', '/api/admin/affirmations'),
+    api('GET', '/api/admin/settings')
+  ]);
+  allAffs = affs.affirmations;
+
+  // Overview
+  document.getElementById('ov-total').textContent = users.total;
+  document.getElementById('ov-paid').textContent = users.paid;
+  document.getElementById('ov-affs').textContent = allAffs.length;
+  document.getElementById('recent-users').innerHTML = users.users.slice(0,5).map(u=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(201,149,74,0.08)">
+      <div><div style="font-size:14px;font-weight:600;color:var(--green3)">${u.name}</div><div style="font-size:12px;color:var(--sand2)">${u.email}</div></div>
+      <span class="badge ${u.isPaid?'badge-paid':'badge-trial'}">${u.isPaid?'Betald':'Provperiod'}</span>
+    </div>`).join('');
+
+  // Users
+  document.getElementById('users-list').innerHTML = users.users.map(u=>`
+    <div class="table-row">
+      <div><div class="cell" style="font-weight:600">${u.name}</div><div class="cell small">${u.email}</div></div>
+      <div class="cell small">${new Date(u.createdAt).toLocaleDateString('sv-SE')}</div>
+      <div><span class="badge ${u.isPaid?'badge-paid':'badge-trial'}">${u.isPaid?'Betald':'Provperiod'}</span></div>
+      <div class="cell">${u.streak} 🔥</div>
+      <div class="cell">${u.readCount}</div>
+      <div><button class="toggle-paid" onclick="togglePaid('${u.id}',this)">${u.isPaid?'Ta bort betalning':'Markera betald'}</button></div>
+    </div>`).join('');
+
+  // Affirmations
+  renderAdminAffs(allAffs);
+
+  // Settings
+  document.getElementById('set-trial').value = settings.trialDays || 7;
+  document.getElementById('set-price').value = settings.priceMonthly || 49;
+}
+
+// ── USERS ──
+async function togglePaid(id, btn) {
+  try {
+    const r = await api('POST', `/api/admin/users/${id}/paid`);
+    const row = btn.closest('.table-row');
+    const badge = row.querySelector('.badge');
+    badge.className = `badge ${r.isPaid?'badge-paid':'badge-trial'}`;
+    badge.textContent = r.isPaid ? 'Betald' : 'Provperiod';
+    btn.textContent = r.isPaid ? 'Ta bort betalning' : 'Markera betald';
+    toast(r.isPaid ? '✓ Markerad som betald' : '✓ Betalning borttagen');
+    const ov = document.getElementById('ov-paid');
+    const r2 = await api('GET','/api/admin/users');
+    ov.textContent = r2.paid;
+  } catch(e){ toast('Fel: ' + (e.error||'okänt')); }
+}
+
+// ── AFFIRMATIONS ──
+function renderAdminAffs(list) {
+  const c = document.getElementById('admin-aff-list');
+  c.innerHTML = list.map((a,i)=>`
+    <div class="aff-item">
+      <div class="aff-idx">${i+1}</div>
+      <div class="aff-txt" contenteditable="false" id="aff-ce-${i}">${a}</div>
+      <div class="aff-actions">
+        <button class="btn-edit" title="Redigera" onclick="openEditModal(${i})">✏️</button>
+        <button class="btn-del" title="Ta bort" onclick="deleteAff(${i})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterAffs(q) {
+  const filtered = allAffs.filter((a,i)=>a.toLowerCase().includes(q.toLowerCase())||String(i+1).includes(q));
+  renderAdminAffs(filtered);
+}
+
+function openEditModal(idx) {
+  modalMode = 'edit'; editIdx = idx;
+  document.getElementById('modal-title').textContent = `Redigera affirmation #${idx+1}`;
+  document.getElementById('modal-text').value = allAffs[idx];
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function openAddModal() {
+  modalMode = 'add'; editIdx = null;
+  document.getElementById('modal-title').textContent = 'Lägg till ny affirmation';
+  document.getElementById('modal-text').value = '';
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('show'); }
+
+async function confirmModal() {
+  const text = document.getElementById('modal-text').value.trim();
+  if(!text) return;
+  showLoader();
+  try {
+    if(modalMode === 'edit') {
+      await api('PUT', `/api/admin/affirmation/${editIdx}`, { text });
+      allAffs[editIdx] = text;
+      toast('✓ Affirmation uppdaterad');
+    } else {
+      await api('POST', '/api/admin/affirmation', { text });
+      allAffs.push(text);
+      document.getElementById('ov-affs').textContent = allAffs.length;
+      toast('✓ Affirmation tillagd');
+    }
+    renderAdminAffs(allAffs);
+    closeModal();
+  } catch(e){ toast('Fel: '+(e.error||'okänt')); }
+  hideLoader();
+}
+
+async function deleteAff(idx) {
+  if(!confirm(`Ta bort affirmation #${idx+1}?`)) return;
+  showLoader();
+  try {
+    await api('DELETE', `/api/admin/affirmation/${idx}`);
+    allAffs.splice(idx,1);
+    renderAdminAffs(allAffs);
+    document.getElementById('ov-affs').textContent = allAffs.length;
+    toast('✓ Affirmation borttagen');
+  } catch(e){ toast('Fel: '+(e.error||'okänt')); }
+  hideLoader();
+}
+
+async function saveSetting(key, inputId) {
+  const val = +document.getElementById(inputId).value;
+  try {
+    await api('PUT', '/api/admin/settings', { [key]: val });
+    toast('✓ Inställning sparad');
+  } catch(e){ toast('Fel: '+(e.error||'okänt')); }
+}
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── UTILS ──
+function toast(msg) {
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+function showLoader(){document.getElementById('loader').classList.add('show')}
+function hideLoader(){document.getElementById('loader').classList.remove('show')}
+
+tryAutoLogin();
+</script>
+</body>
+</html>
